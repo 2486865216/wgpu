@@ -1,0 +1,63 @@
+[package]
+name = "wgpu_01"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.5"
+winit="0.28.6"
+env_logger = "0.10.0"
+log = "0.4.19"
+wgpu = "0.17.0"
+bytemuck = { version = "1.13.1", features = ["derive"]}
+
+cfg-if = "1.0.0"
+console_error_panic_hook = "0.1.7"
+console_log = "1.0.0"
+wasm-bindgen = "0.2.87"
+wasm-bindgen-futures = "0.4.37"
+web-sys = "0.3.64"
+
+# 异步
+pollster = "0.3.0"
+
+[dependencies.image]
+version = "0.24.7"
+default-features = false
+features = ["png", "jpeg"]
+
+
+[lib]
+# 这几行告诉 cargo 允许项目构建（build)一个本地的 Rust 静态库（rlib）和一个 C/C++ 兼容库（cdylib）。
+crate-type = ["cdylib", "rlib"]
+
+# [target.'cfg(target_arch = "wasm32")'.dependencies] 行告诉 cargo，如果我们的目标是 wasm32 架构，则只包括这些依赖项。
+# 接下来的几个依赖项只是让我们与 javascript 的交互更容易。
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+
+# console_error_panic_hook 配置 panic! 宏以将错误发送到 javascript 控制台。如果没有这个，当遇到程序崩溃时，你就会对导致崩溃的原因一无所知。
+console_error_panic_hook = "0.1.7"
+
+# console_log 实现了 log API。它将所有日志发送到 javascript 控制台。它还可以配置为仅发送特定级别的日志，这非常适合用于调试。
+console_log = "1.0.0"
+
+#wasm-bindgen 是此列表中最重要的依赖项。它负责生成样板代码，并告诉浏览器如何使用我们的项目。它还允许我们在 Rust 中公开可在 Javascript 中使用的函数，反之亦然。
+wasm-bindgen = "0.2.87"
+wasm-bindgen-futures = "0.4.37"
+
+# web-sys 是一个包含了许多在 javascript 程序中可用的函数和结构体的工具箱，
+# 如：get_element_by_id、append_child。features = [...] 数组里列出的是我们目前最低限度需要的功能。
+web-sys = {version = "0.3.64", features = ["Document", "Window", "Element"]}
+
+[features]
+# 支持 WebGL
+default = []
+webgl = ["wgpu/webgl"]
+# 运行 cargo build --target wasm32-unknown-unknown --features webgl
+# 安装 wasm-bindgen 并运行：
+# cargo install -f wasm-bindgen-cli
+# wasm-bindgen --no-typescript
+#   --out-dir {你的输出目录，例如 ./tutorial1_window_output}
+#   --web {wasm 所在的目录，例如 .\target\wasm32-unknown-unknown\release\tutorial1_window.wasm}
